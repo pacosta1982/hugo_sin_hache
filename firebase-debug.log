@@ -1,0 +1,46 @@
+[debug] [2025-08-01T19:59:36.139Z] ----------------------------------------------------------------------
+[debug] [2025-08-01T19:59:36.142Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\User\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-08-01T19:59:36.142Z] CLI Version:   14.11.2
+[debug] [2025-08-01T19:59:36.142Z] Platform:      win32
+[debug] [2025-08-01T19:59:36.142Z] Node Version:  v22.17.1
+[debug] [2025-08-01T19:59:36.143Z] Time:          Fri Aug 01 2025 16:59:36 GMT-0300 (hora estándar de Paraguay)
+[debug] [2025-08-01T19:59:36.143Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-01T19:59:36.147Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-01T19:59:36.148Z] > authorizing via signed-in user (hernan.funes95@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\User\sheets-backend\ugo-laravel
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-08-01T19:59:44.837Z] Checked if tokens are valid: true, expires at: 1754081872372
+[debug] [2025-08-01T19:59:44.837Z] Checked if tokens are valid: true, expires at: 1754081872372
+[debug] [2025-08-01T19:59:44.838Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=100
+[debug] [2025-08-01T19:59:45.536Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
+[debug] [2025-08-01T19:59:45.536Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[info] i  Using project ugo-sistema-puntos (ugo-sistema-puntos) 
+[info] 
+=== Hosting Setup
+[debug] [2025-08-01T19:59:46.218Z] Checked if tokens are valid: true, expires at: 1754081872372
+[debug] [2025-08-01T19:59:46.218Z] Checked if tokens are valid: true, expires at: 1754081872372
+[debug] [2025-08-01T19:59:46.218Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/ugo-sistema-puntos [none]
+[debug] [2025-08-01T19:59:46.536Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/ugo-sistema-puntos 200
+[debug] [2025-08-01T19:59:46.536Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/ugo-sistema-puntos {"projectId":"ugo-sistema-puntos","projectNumber":"287990891536","displayName":"ugo-sistema-puntos","name":"projects/ugo-sistema-puntos","resources":{"hostingSite":"ugo-sistema-puntos"},"state":"ACTIVE","etag":"1_5a1804cf-2b8c-46c5-aa48-94fae6c1de2c"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 

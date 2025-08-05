@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+    .nav-link {
+        @apply inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out border-b-2 border-transparent;
+    }
+    
+    .nav-link.active {
+        @apply text-teal-600 border-teal-600;
+    }
+
+    .dropdown-item {
+        @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition duration-150 ease-in-out;
+    }
+
+    .btn-ghost {
+        @apply btn bg-transparent hover:bg-gray-100 text-gray-700 border-0 shadow-none;
+    }
+
+    .btn-outline {
+        @apply btn bg-transparent border-2 hover:bg-opacity-10;
+    }
+
+    .btn-outline-primary {
+        @apply btn-outline border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white;
+    }
+
+    .card-gradient {
+        @apply bg-gradient-to-br from-white to-gray-50/30 rounded-xl shadow-soft border border-gray-100/50 backdrop-blur-sm;
+    }
+
+    .card-stats {
+        @apply card-gradient interactive-scale;
+    }
+
+    .form-group {
+        @apply mb-4;
+    }
+
+    .form-group-inline {
+        @apply flex items-center space-x-4;
+    }
+
+    .form-checkbox {
+        @apply h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded transition-colors;
+    }
+
+    .form-radio {
+        @apply h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 transition-colors;
+    }
+
+    .status-badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .status-pending {
+        @apply status-badge bg-yellow-100 text-yellow-800;
+    }
+    
+    .status-in-progress {
+        @apply status-badge bg-teal-100 text-teal-800;
+    }
+    
+    .status-completed {
+        @apply status-badge bg-green-100 text-green-800;
+    }
+    
+    .status-cancelled {
+        @apply status-badge bg-red-100 text-red-800;
+    }
+
+    .container {
+        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+}
+
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.gradient-teal {
+    background: linear-gradient(135deg, #0ADD90 0%, #00AE6E 100%);
+}
+
+.gradient-itti {
+    background: linear-gradient(135deg, #0ADD90 0%, #00AE6E 50%, #0f766e 100%);
+}
+
+.gradient-purple {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-green {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-orange {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2;
+}
+
+.shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-strong {
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.bg-itti-primary {
+    background-color: #0ADD90;
+}
+
+.bg-itti-secondary {
+    background-color: #00AE6E;
+}
+
+.bg-itti-dark {
+    background-color: #0D0D0D;
+}
+
+.bg-itti-dark-purple {
+    background-color: #1F1B24;
+}
+
+.text-itti-primary {
+    color: #0ADD90;
+}
+
+.text-itti-secondary {
+    color: #00AE6E;
+}
+
+.border-itti-primary {
+    border-color: #0ADD90;
+}
+
+.border-itti-secondary {
+    border-color: #00AE6E;
+}
+
+.card-itti {
+    @apply bg-white rounded-xl shadow-soft border border-itti-accent/20 hover:shadow-lg hover:border-itti-primary/20 transition-all duration-200;
+}
+
+.card-itti-dark {
+    @apply bg-itti-dark-purple text-white rounded-xl shadow-strong border border-itti-primary/20 hover:shadow-lg hover:border-itti-primary/40 transition-all duration-200;
+}

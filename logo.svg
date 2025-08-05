@@ -1,0 +1,11 @@
+<svg width="1200" height="600" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" font-family="'Poppins', sans-serif">
+  <rect width="400" height="200" rx="50" ry="50" fill="#15c298"/>
+
+  <circle cx="100" cy="100" r="52" fill="white"/>
+
+  <text x="100" y="118" font-size="58" font-weight="800" text-anchor="middle" fill="#15c298">U</text>
+
+  <rect x="175" y="68" width="4" height="64" rx="2" fill="white"/>
+
+  <text x="200" y="125" font-size="70" font-weight="600" fill="white">go</text>
+</svg>
