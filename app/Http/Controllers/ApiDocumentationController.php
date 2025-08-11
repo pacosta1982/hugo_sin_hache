@@ -6,26 +6,17 @@ use Illuminate\Http\Request;
 
 class ApiDocumentationController extends Controller
 {
-    /**
-     * Display the API documentation
-     */
     public function index()
     {
         $apiSpec = $this->getApiSpecification();
         return view('api.documentation', compact('apiSpec'));
     }
 
-    /**
-     * Get the API specification in OpenAPI format
-     */
     public function openapi()
     {
         return response()->json($this->getApiSpecification());
     }
 
-    /**
-     * Get the complete API specification
-     */
     private function getApiSpecification(): array
     {
         return [

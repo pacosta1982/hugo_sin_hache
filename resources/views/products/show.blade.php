@@ -59,7 +59,7 @@
 
             
             <div class="text-4xl font-bold text-blue-600">
-                {{ number_format($product->costo_puntos) }} puntos
+                {{ number_format($product->puntos_requeridos) }} puntos
             </div>
 
             
@@ -111,24 +111,11 @@
             <div class="bg-gray-50 rounded-lg p-4">
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-medium text-gray-700">Tus puntos disponibles:</span>
-                    <span class="text-lg font-bold text-gray-900">{{ number_format($employee ? ($employee->puntos_totales - $employee->puntos_canjeados) : 0) }}</span>
+                    <span id="user-points-display" class="text-lg font-bold text-gray-900">Cargando...</span>
                 </div>
                 
-                @if($canAfford)
-                    <div class="mt-2 flex items-center text-sm text-green-600">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        Tienes suficientes puntos
-                    </div>
-                @else
-                    <div class="mt-2 flex items-center text-sm text-red-600">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                        </svg>
-                        Puntos insuficientes (necesitas {{ number_format($employee ? ($product->costo_puntos - ($employee->puntos_totales - $employee->puntos_canjeados)) : $product->costo_puntos) }} más)
-                    </div>
-                @endif
+                <div id="points-status" class="mt-2" style="display: none;">
+                </div>
             </div>
 
             
@@ -148,12 +135,12 @@
                     <button 
                         type="submit" 
                         id="redeem-button"
-                        class="w-full btn-primary btn-lg {{ !$canAfford ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ !$canAfford ? 'disabled' : '' }}>
+                        class="w-full btn-primary btn-lg"
+                        data-product-cost="{{ $product->puntos_requeridos }}">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                         </svg>
-                        Canjear por {{ number_format($product->costo_puntos) }} puntos
+                        Canjear por {{ number_format($product->puntos_requeridos) }} puntos
                     </button>
                 </form>
             @else
@@ -210,9 +197,115 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load correct favorite status after authentication
     loadFavoriteStatus();
     
+    // Function to update button state based on auth and points
+    async function updateButtonState() {
+        const token = localStorage.getItem('firebase_token');
+        if (!redeemButton) return;
+        
+        if (!token) {
+            redeemButton.disabled = true;
+            redeemButton.className = "w-full btn-secondary btn-lg opacity-50 cursor-not-allowed";
+            redeemButton.innerHTML = `
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 0h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                Inicia sesión para canjear
+            `;
+            return;
+        }
+
+        // User is authenticated, check if they have enough points
+        try {
+            const response = await fetch('/api/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                const userPoints = userData.employee?.puntos_totales || 0;
+                const productCost = parseInt(redeemButton.dataset.productCost) || 0;
+                
+                console.log('User points:', userPoints, 'Product cost:', productCost);
+                
+                // Update points display
+                const pointsDisplay = document.getElementById('user-points-display');
+                if (pointsDisplay) {
+                    pointsDisplay.textContent = userPoints.toLocaleString();
+                }
+                
+                // Update points status
+                const pointsStatus = document.getElementById('points-status');
+                if (pointsStatus) {
+                    pointsStatus.style.display = 'block';
+                    
+                    if (userPoints >= productCost) {
+                        pointsStatus.innerHTML = `
+                            <div class="flex items-center text-sm text-green-600">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Tienes suficientes puntos
+                            </div>
+                        `;
+                    } else {
+                        const needed = productCost - userPoints;
+                        pointsStatus.innerHTML = `
+                            <div class="flex items-center text-sm text-red-600">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                                Puntos insuficientes (necesitas ${needed.toLocaleString()} más)
+                            </div>
+                        `;
+                    }
+                }
+                
+                if (userPoints >= productCost) {
+                    // User can afford it
+                    redeemButton.disabled = false;
+                    redeemButton.className = "w-full btn-primary btn-lg";
+                    redeemButton.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                        Canjear por {{ number_format($product->puntos_requeridos) }} puntos
+                    `;
+                } else {
+                    // Insufficient points
+                    redeemButton.disabled = true;
+                    redeemButton.className = "w-full btn-secondary btn-lg opacity-50 cursor-not-allowed";
+                    redeemButton.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                        Puntos insuficientes (${userPoints.toLocaleString()} de ${productCost.toLocaleString()})
+                    `;
+                }
+            } else {
+                // API error, disable button
+                redeemButton.disabled = true;
+                redeemButton.className = "w-full btn-secondary btn-lg opacity-50";
+                redeemButton.innerHTML = `
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    Error al cargar datos
+                `;
+            }
+        } catch (error) {
+            console.error('Error checking user data:', error);
+            redeemButton.disabled = true;
+            redeemButton.className = "w-full btn-secondary btn-lg opacity-50";
+        }
+    }
+    
     // Listen for auth completion
     window.addEventListener('auth-completed', () => {
-        console.log('Product details: Auth completed, loading favorite status');
+        console.log('Product details: Auth completed, updating button and loading favorite status');
+        updateButtonState();
         setTimeout(() => {
             loadFavoriteStatus();
         }, 100);
@@ -221,38 +314,103 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if auth is already completed
     if (window.authInitialized && localStorage.getItem('firebase_token')) {
         setTimeout(() => {
+            updateButtonState();
             loadFavoriteStatus();
-        }, 100);
+        }, 500);
+    } else {
+        // Set initial state and keep checking for auth
+        updateButtonState();
+        
+        // Keep checking for authentication
+        let authCheckCount = 0;
+        const authCheckInterval = setInterval(() => {
+            authCheckCount++;
+            const token = localStorage.getItem('firebase_token');
+            
+            if (token || authCheckCount > 20) { // Stop after 10 seconds
+                clearInterval(authCheckInterval);
+                if (token) {
+                    updateButtonState();
+                    loadFavoriteStatus();
+                }
+            }
+        }, 500);
     }
     
     if (redeemForm) {
+        console.log('Redemption form found, attaching event listener');
+        
         redeemForm.addEventListener('submit', async function(e) {
+            console.log('Form submission started!');
             e.preventDefault();
             
-            if (redeemButton.disabled) return;
+            // Check if user is authenticated
+            const token = localStorage.getItem('firebase_token');
+            console.log('Firebase token:', token ? 'Present' : 'Missing');
+            
+            if (!token) {
+                showMessage('Debes iniciar sesión para canjear productos', 'error');
+                return;
+            }
             
             // Show loading state
             const originalText = redeemButton.innerHTML;
             redeemButton.disabled = true;
-            redeemButton.innerHTML = '<div class="loading-spinner mr-2"></div>Procesando...';
+            redeemButton.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>Procesando...';
             
             try {
                 const formData = new FormData(redeemForm);
+                const observaciones = formData.get('observaciones') || '';
+                console.log('Making redemption request...');
+                console.log('URL:', `/api/productos/{{ $product->id }}/canjear`);
+                console.log('Observaciones:', observaciones);
                 
-                const response = await fetch(`{{ route('products.redeem', $product) }}`, {
+                const requestBody = {
+                    observaciones: observaciones
+                };
+                
+                console.log('Request body:', requestBody);
+                
+                const response = await fetch(`/api/productos/{{ $product->id }}/canjear`, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('firebase_token')}`,
-                        'X-CSRF-TOKEN': formData.get('_token'),
-                        'Accept': 'application/json'
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: formData
+                    body: JSON.stringify(requestBody)
                 });
                 
-                const data = await response.json();
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('Non-JSON response:', text);
+                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}`);
+                }
+                
+                console.log('Response data:', data);
                 
                 if (data.success) {
-                    showMessage('¡Canje realizado exitosamente!', 'success');
+                    // Show simple, clear success message
+                    showMessage('✅ ¡Producto canjeado exitosamente!', 'success');
+                    console.log('Redemption successful! Order data:', data);
+                    
+                    // Update button to show completion
+                    redeemButton.innerHTML = `
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        ¡Canjeado exitosamente!
+                    `;
+                    redeemButton.className = "w-full btn-success btn-lg";
+                    redeemButton.disabled = true;
+                    
                     // Redirect to orders after 2 seconds
                     setTimeout(() => {
                         window.location.href = '{{ route("orders.history") }}';
@@ -264,10 +422,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (error) {
                 console.error('Redemption error:', error);
-                showMessage('Error al procesar el canje', 'error');
+                showMessage(`Error al procesar el canje: ${error.message}`, 'error');
                 redeemButton.disabled = false;
                 redeemButton.innerHTML = originalText;
             }
+        });
+    } else {
+        console.log('Redemption form NOT found!');
+    }
+    
+    // Backup: Also add click handler directly to button
+    if (redeemButton) {
+        console.log('Adding backup click handler to button');
+        redeemButton.addEventListener('click', function(e) {
+            console.log('Button clicked directly!');
+            // Let the form submission handle it, but log that button was clicked
         });
     }
 });
@@ -462,6 +631,30 @@ function showMessage(message, type) {
     setTimeout(() => {
         container.classList.add('hidden');
     }, 5000);
+}
+
+function showDetailedMessage(message, type) {
+    const container = document.getElementById('message-container');
+    const messageEl = document.getElementById('message');
+    
+    // Create detailed message with proper formatting
+    messageEl.innerHTML = message.split('\n').map(line => 
+        line.trim() ? `<div class="mb-1">${line.trim()}</div>` : '<div class="mb-2"></div>'
+    ).join('');
+    
+    messageEl.className = `px-6 py-6 rounded-lg shadow-2xl text-white max-w-md ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    
+    container.classList.remove('hidden');
+    container.style.zIndex = '9999';
+    
+    // Don't auto-hide detailed success messages since they include important info
+    if (type !== 'success') {
+        setTimeout(() => {
+            container.classList.add('hidden');
+        }, 8000);
+    }
 }
 </script>
 @endsection

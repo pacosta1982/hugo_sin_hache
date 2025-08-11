@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Use custom CSRF middleware with exceptions for Livewire and API routes
+        $middleware->web(replace: [
+            \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class => \App\Http\Middleware\VerifyCsrfToken::class,
+        ]);
+
         $middleware->alias([
             'firebase.auth' => \App\Http\Middleware\FirebaseAuth::class,
             'require.admin' => \App\Http\Middleware\RequireAdmin::class,

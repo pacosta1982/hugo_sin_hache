@@ -47,7 +47,7 @@ class MonitoringService
         try {
 
             DB::connection()->getPdo();
-            $connectionTime = (microtime(true) - $startTime) * 1000; // Convert to milliseconds
+            $connectionTime = (microtime(true) - $startTime) * 1000;
             
 
             $employeeCount = Employee::count();
@@ -166,7 +166,7 @@ class MonitoringService
             DB::table('employees')->select('id_empleado')->first();
             return round((microtime(true) - $startTime) * 1000, 2);
         } catch (\Exception $e) {
-            return -1; // Error indicator
+            return -1;
         }
     }
 
@@ -178,7 +178,7 @@ class MonitoringService
             Cache::get('non_existent_key');
             return round((microtime(true) - $startTime) * 1000, 2);
         } catch (\Exception $e) {
-            return -1; // Error indicator
+            return -1;
         }
     }
 

@@ -16,6 +16,11 @@ use App\Http\Controllers\AuthController;
 
 
 Route::get('/', function () {
+    // Show landing page for non-authenticated users
+    if (!auth()->check()) {
+        return view('welcome');
+    }
+    // Redirect authenticated users to dashboard
     return redirect()->route('dashboard');
 });
 
@@ -46,36 +51,68 @@ Route::get('/performance', [App\Http\Controllers\HealthController::class, 'perfo
 Route::get('/config', [App\Http\Controllers\HealthController::class, 'config'])->name('config');
 
 
+
 Route::group([], function () {
     
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('firebase.auth')->name('dashboard');
     
 
-    Route::get('/productos', [ProductController::class, 'index'])->middleware('throttle:search')->name('products.index');
-    Route::get('/productos/{product}', [ProductController::class, 'show'])->name('products.show');
-    Route::post('/productos/{product}/canjear', [ProductController::class, 'redeem'])->middleware('throttle:redemption')->name('products.redeem');
+    Route::get('/productos', [ProductController::class, 'index'])->middleware(['firebase.auth', 'throttle:search'])->name('products.index');
+    Route::get('/productos/{product}', [ProductController::class, 'show'])->middleware('firebase.auth')->name('products.show');
+    Route::post('/productos/{product}/canjear', [ProductController::class, 'redeem'])->middleware(['firebase.auth', 'throttle:redemption'])->name('products.redeem');
     
 
     Route::get('/favoritos', [FavoriteController::class, 'index'])->middleware('firebase.auth')->name('favorites.index');
-    Route::post('/favoritos/{product}', [FavoriteController::class, 'toggle'])->middleware('throttle:favorites')->name('favorites.toggle');
-    Route::delete('/favoritos/{favorite}', [FavoriteController::class, 'destroy'])->middleware('throttle:favorites')->name('favorites.destroy');
+    Route::post('/favoritos/{product}', [FavoriteController::class, 'toggle'])->middleware(['firebase.auth', 'throttle:favorites'])->name('favorites.toggle');
+    Route::delete('/favoritos/{favorite}', [FavoriteController::class, 'destroy'])->middleware(['firebase.auth', 'throttle:favorites'])->name('favorites.destroy');
     
 
-    Route::get('/pedidos', [OrderController::class, 'history'])->name('orders.history');
-    Route::get('/pedidos/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/pedidos', [OrderController::class, 'history'])->middleware('firebase.auth')->name('orders.history');
+    Route::get('/pedidos/{order}', [OrderController::class, 'show'])->middleware('firebase.auth')->name('orders.show');
     
 
-    Route::get('/perfil', [AuthController::class, 'profile'])->name('profile');
-    Route::put('/perfil', [AuthController::class, 'updateProfile'])->middleware('throttle:profile')->name('profile.update');
+    Route::get('/perfil', [AuthController::class, 'profile'])->middleware('firebase.auth')->name('profile');
+    Route::put('/perfil', [AuthController::class, 'updateProfile'])->middleware(['firebase.auth', 'throttle:profile'])->name('profile.update');
     
 
-    Route::middleware(['require.admin', 'throttle:admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/pedidos', [AdminController::class, 'orders'])->name('orders');
-        Route::put('/pedidos/{order}/estado', [AdminController::class, 'updateOrderStatus'])->name('orders.update-status');
-        Route::get('/empleados', [AdminController::class, 'employees'])->name('employees');
-        Route::get('/productos', [AdminController::class, 'products'])->name('products');
-        Route::get('/reportes', [AdminController::class, 'reports'])->name('reports');
+    // Admin Routes 
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // Dashboard - uses firebase.auth with frontend authentication check
+        Route::get('/', [AdminController::class, 'dashboard'])->middleware('firebase.auth')->name('dashboard');
+        
+        // Test route without Livewire component
+        Route::get('/test-pedidos', function () {
+            return view('admin.orders-test');
+        })->middleware('firebase.auth')->name('test-orders');
+        
+        // Admin pages - use firebase.auth only, handle admin check on frontend
+        Route::middleware(['firebase.auth'])->group(function () {
+            Route::get('/pedidos', [AdminController::class, 'orders'])->name('orders');
+            Route::get('/empleados', [AdminController::class, 'employees'])->name('employees');
+            Route::get('/productos', [AdminController::class, 'products'])->name('products');
+        });
+        
+        // Admin API endpoints - still require proper authentication
+        Route::middleware(['firebase.auth', 'require.admin'])->group(function () {
+            Route::put('/pedidos/{order}/estado', [AdminController::class, 'updateOrderStatus'])->name('orders.update-status');
+            Route::get('/reportes', [AdminController::class, 'reports'])->name('reports');
+            Route::get('/puntos', [AdminController::class, 'points'])->name('points');
+        });
     });
 });
+
+// PWA Routes (no authentication required for offline functionality)
+Route::get('/offline', function () {
+    return view('offline');
+})->name('offline');
+
+// PWA Manifest route (served by web server but can be cached)
+Route::get('/app-manifest.json', function () {
+    $pwaService = app(\App\Services\PWAService::class);
+    return response()->json($pwaService->getManifestData())
+        ->header('Content-Type', 'application/json')
+        ->header('Cache-Control', 'public, max-age=3600');
+})->name('pwa.manifest');
+
 

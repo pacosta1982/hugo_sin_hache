@@ -195,7 +195,7 @@ class FirebaseService
 
 
         if (!$password) {
-            $password = \Str::random(12); // Generate random password
+            $password = \Str::random(12);
         }
 
         $additionalClaims = [

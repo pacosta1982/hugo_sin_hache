@@ -22,6 +22,7 @@ class EmployeeManagement extends Component
     public $selectedEmployee = null;
     public $employeeOrders = [];
     public $employeeStats = [];
+    public $employeeTransactions = [];
     
 
     public $editForm = [
@@ -38,9 +39,11 @@ class EmployeeManagement extends Component
 
     public function mount()
     {
-        $employee = request()->get('employee');
-        if (!$employee || !$employee->is_admin) {
-            abort(403, 'Acceso denegado');
+        if (request()->expectsJson()) {
+            $employee = request()->get('employee');
+            if (!$employee || !$employee->is_admin) {
+                abort(403, 'Acceso denegado');
+            }
         }
     }
 
@@ -74,6 +77,12 @@ class EmployeeManagement extends Component
                 ->get()
                 ->toArray();
 
+            $this->employeeTransactions = \App\Models\PointTransaction::where('empleado_id', $this->selectedEmployee->id_empleado)
+                ->with('admin')
+                ->orderBy('created_at', 'desc')
+                ->limit(15)
+                ->get()
+                ->toArray();
 
             $this->employeeStats = [
                 'total_orders' => Order::where('empleado_id', $this->selectedEmployee->id_empleado)->count(),
@@ -100,6 +109,7 @@ class EmployeeManagement extends Component
         $this->selectedEmployee = null;
         $this->employeeOrders = [];
         $this->employeeStats = [];
+        $this->employeeTransactions = [];
     }
 
     public function openEditModal($employeeId)
@@ -173,21 +183,93 @@ class EmployeeManagement extends Component
         }
     }
 
+    public $showPointsModal = false;
+    public $pointsForm = [
+        'employee_id' => '',
+        'points' => '',
+        'description' => '',
+        'type' => 'earned',
+    ];
+
     public function addPoints($employeeId, $points)
     {
         $employee = Employee::find($employeeId);
         if ($employee && $points > 0) {
-            $employee->increment('puntos_totales', $points);
+            $adminId = request()->attributes->get('firebase_user')['uid'] ?? null;
             
-            \Log::info('Admin added points to employee', [
-                'admin_id' => request()->get('employee')->id_empleado,
-                'employee_id' => $employee->id_empleado,
-                'employee_name' => $employee->nombre,
-                'points_added' => $points,
-                'new_total' => $employee->fresh()->puntos_totales,
-            ]);
+            $employee->awardPoints(
+                $points,
+                'Admin manual point adjustment',
+                $adminId
+            );
 
             session()->flash('message', "Se agregaron {$points} puntos a {$employee->nombre}.");
+        }
+    }
+
+    public function openPointsModal($employeeId)
+    {
+        $employee = Employee::find($employeeId);
+        if ($employee) {
+            $this->pointsForm = [
+                'employee_id' => $employeeId,
+                'points' => '',
+                'description' => '',
+                'type' => 'earned',
+            ];
+            $this->showPointsModal = true;
+        }
+    }
+
+    public function closePointsModal()
+    {
+        $this->showPointsModal = false;
+        $this->pointsForm = [
+            'employee_id' => '',
+            'points' => '',
+            'description' => '',
+            'type' => 'earned',
+        ];
+        $this->resetValidation();
+    }
+
+    public function adjustPoints()
+    {
+        $this->validate([
+            'pointsForm.points' => 'required|integer|min:1|max:10000',
+            'pointsForm.description' => 'required|string|max:255',
+            'pointsForm.type' => 'required|in:earned,adjustment',
+        ]);
+
+        $employee = Employee::find($this->pointsForm['employee_id']);
+        if ($employee) {
+            $adminId = request()->attributes->get('firebase_user')['uid'] ?? null;
+            
+            if ($this->pointsForm['type'] === 'earned') {
+                $employee->awardPoints(
+                    (int) $this->pointsForm['points'],
+                    $this->pointsForm['description'],
+                    $adminId
+                );
+                $message = "Se otorgaron {$this->pointsForm['points']} puntos a {$employee->nombre}";
+            } else {
+                \App\Models\PointTransaction::recordTransaction(
+                    $employee->id_empleado,
+                    'adjustment',
+                    (int) $this->pointsForm['points'],
+                    $this->pointsForm['description'],
+                    $adminId
+                );
+                
+                $employee->update([
+                    'puntos_totales' => $employee->puntos_totales + (int) $this->pointsForm['points']
+                ]);
+                
+                $message = "Se ajustaron {$this->pointsForm['points']} puntos para {$employee->nombre}";
+            }
+
+            session()->flash('message', $message);
+            $this->closePointsModal();
         }
     }
 

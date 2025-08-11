@@ -11,24 +11,41 @@ use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
+    public function __construct(
+        private EmailService $emailService
+    ) {}
+
     public function sendOrderNotifications(Order $order): array
     {
         $results = [
             'jira' => null,
             'email' => null,
+            'admin_email' => null,
         ];
 
         $product = $order->product;
         $employee = $order->employee;
 
-
         if ($product && $product->integra_jira) {
             $results['jira'] = $this->createJiraTicket($order);
         }
 
-
         if ($product && $product->envia_email) {
-            $results['email'] = $this->sendEmailNotification($order);
+            $results['email'] = $this->emailService->sendOrderConfirmation($order);
+            $results['admin_email'] = $this->emailService->sendOrderNotificationToAdmins($order);
+        }
+
+        return $results;
+    }
+
+    public function sendOrderStatusUpdate(Order $order): array
+    {
+        $results = [
+            'email' => null,
+        ];
+
+        if ($order->product && $order->product->envia_email) {
+            $results['email'] = $this->emailService->sendOrderStatusUpdate($order);
         }
 
         return $results;

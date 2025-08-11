@@ -56,8 +56,8 @@ class UpdateOrderStatusRequest extends FormRequest
         $validTransitions = [
             Order::STATUS_PENDING => [Order::STATUS_PROCESSING, Order::STATUS_CANCELLED],
             Order::STATUS_PROCESSING => [Order::STATUS_COMPLETED, Order::STATUS_CANCELLED],
-            Order::STATUS_COMPLETED => [], // No transitions from completed
-            Order::STATUS_CANCELLED => [], // No transitions from cancelled
+            Order::STATUS_COMPLETED => [],
+            Order::STATUS_CANCELLED => [],
         ];
 
 

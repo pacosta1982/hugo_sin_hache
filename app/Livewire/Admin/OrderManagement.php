@@ -34,10 +34,11 @@ class OrderManagement extends Component
 
     public function mount()
     {
-
-        $employee = request()->get('employee');
-        if (!$employee || !$employee->is_admin) {
-            abort(403, 'Acceso denegado');
+        if (request()->expectsJson()) {
+            $employee = request()->get('employee');
+            if (!$employee || !$employee->is_admin) {
+                abort(403, 'Acceso denegado');
+            }
         }
     }
 
@@ -149,13 +150,17 @@ class OrderManagement extends Component
     public function getStatsProperty()
     {
         $cacheService = app(CacheService::class);
-        
-
         if (!$this->search && !$this->dateFrom && !$this->dateTo) {
-            return $cacheService->getAdminStatistics();
+            $cached = $cacheService->getAdminStatistics();
+            return [
+                'total' => $cached['total_orders'] ?? 0,
+                'pending' => $cached['pending_orders'] ?? 0,
+                'in_progress' => Order::where('estado', Order::STATUS_PROCESSING)->count(),
+                'completed' => Order::where('estado', Order::STATUS_COMPLETED)->count(),
+                'cancelled' => Order::where('estado', Order::STATUS_CANCELLED)->count(),
+                'total_points' => $cached['total_points_redeemed'] ?? 0,
+            ];
         }
-        
-
         $baseQuery = Order::query()
             ->when($this->search, function (Builder $query) {
                 $query->where(function (Builder $q) {
@@ -173,10 +178,10 @@ class OrderManagement extends Component
         return [
             'total' => (clone $baseQuery)->count(),
             'pending' => (clone $baseQuery)->where('estado', Order::STATUS_PENDING)->count(),
-            'in_progress' => (clone $baseQuery)->where('estado', Order::STATUS_IN_PROGRESS)->count(),
+            'in_progress' => (clone $baseQuery)->where('estado', Order::STATUS_PROCESSING)->count(),
             'completed' => (clone $baseQuery)->where('estado', Order::STATUS_COMPLETED)->count(),
             'cancelled' => (clone $baseQuery)->where('estado', Order::STATUS_CANCELLED)->count(),
-            'total_points' => (clone $baseQuery)->whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_IN_PROGRESS])->sum('puntos_utilizados'),
+            'total_points' => (clone $baseQuery)->whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING])->sum('puntos_utilizados'),
         ];
     }
 

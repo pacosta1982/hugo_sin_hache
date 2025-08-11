@@ -48,10 +48,31 @@ class OrderController extends Controller
             ], 401);
         }
 
-        $orders = Order::where('empleado_id', $employee->id_empleado)
-            ->with('product')
-            ->orderBy('fecha', 'desc')
-            ->paginate(20);
+        $query = Order::where('empleado_id', $employee->id_empleado)
+            ->with('product');
+
+
+        if ($request->has('status') && $request->status) {
+            $query->where('estado', $request->status);
+        }
+
+        if ($request->has('date_from') && $request->date_from) {
+            try {
+                $query->whereDate('fecha', '>=', $request->date_from);
+            } catch (\Exception $e) {
+
+            }
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            try {
+                $query->whereDate('fecha', '<=', $request->date_to);
+            } catch (\Exception $e) {
+
+            }
+        }
+
+        $orders = $query->orderBy('fecha', 'desc')->paginate(20);
 
         return response()->json([
             'success' => true,
@@ -80,7 +101,7 @@ class OrderController extends Controller
             ], 401);
         }
 
-        // Verify the order belongs to the current employee
+
         if ($order->empleado_id !== $employee->id_empleado) {
             return response()->json([
                 'success' => false,
@@ -114,7 +135,7 @@ class OrderController extends Controller
             ], 401);
         }
 
-        // Verify the order belongs to the current employee
+
         if ($order->empleado_id !== $employee->id_empleado) {
             return response()->json([
                 'success' => false,

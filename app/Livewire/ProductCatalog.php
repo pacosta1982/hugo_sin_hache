@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\Favorite;
 use App\Services\CacheService;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,8 +16,8 @@ class ProductCatalog extends Component
 
     public $employee;
     public $search = '';
-    public $category = '';
-    public $sortBy = 'costo_puntos';
+    public $categoryId = null;
+    public $sortBy = 'puntos_requeridos';
     public $sortDirection = 'asc';
     public $availableOnly = true;
     public $maxPoints = null;
@@ -28,8 +29,8 @@ class ProductCatalog extends Component
 
     protected $queryString = [
         'search' => ['except' => ''],
-        'category' => ['except' => ''],
-        'sortBy' => ['except' => 'costo_puntos'],
+        'categoryId' => ['except' => null],
+        'sortBy' => ['except' => 'puntos_requeridos'],
         'sortDirection' => ['except' => 'asc'],
         'availableOnly' => ['except' => true],
     ];
@@ -40,23 +41,27 @@ class ProductCatalog extends Component
         $this->employee = request()->get('employee');
         
         if ($this->employee) {
-            $this->maxPoints = $this->employee->puntos_totales;
             $this->isAuthenticated = true;
             $this->loadFavorites();
         }
         
-        $this->loadCategories(); // Categories don't require authentication
+        $this->loadCategories();
     }
 
     public function loadCategories()
     {
-        $this->categories = Product::active()
-            ->whereNotNull('categoria')
-            ->distinct()
-            ->pluck('categoria')
-            ->filter()
-            ->sort()
-            ->values()
+        $this->categories = ProductCategory::active()
+            ->roots()
+            ->with(['children' => function ($query) {
+                $query->active()->ordered()->withCount(['products' => function ($q) {
+                    $q->where('activo', true);
+                }]);
+            }])
+            ->withCount(['products' => function ($query) {
+                $query->where('activo', true);
+            }])
+            ->ordered()
+            ->get()
             ->toArray();
     }
 
@@ -115,12 +120,17 @@ class ProductCatalog extends Component
         $this->resetPage();
     }
 
-    public function updatedCategory()
+    public function updatedCategoryId()
     {
         $this->resetPage();
     }
 
     public function updatedAvailableOnly()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedMaxPoints()
     {
         $this->resetPage();
     }
@@ -134,10 +144,10 @@ class ProductCatalog extends Component
     public function clearFilters()
     {
         $this->search = '';
-        $this->category = '';
+        $this->categoryId = null;
         $this->availableOnly = true;
-        $this->maxPoints = $this->employee->puntos_totales;
-        $this->sortBy = 'costo_puntos';
+        $this->maxPoints = null;
+        $this->sortBy = 'puntos_requeridos';
         $this->sortDirection = 'asc';
         $this->resetPage();
     }
@@ -229,7 +239,6 @@ class ProductCatalog extends Component
                 return;
             }
             
-            $this->maxPoints = $this->employee->puntos_totales;
             $this->loadFavorites();
             
 
@@ -256,11 +265,8 @@ class ProductCatalog extends Component
             
 
             $this->employee = $employeeData;
-            $this->maxPoints = is_array($employeeData) 
-                ? ($employeeData['puntos_totales'] ?? null)
-                : ($employeeData->puntos_totales ?? null);
             $this->isAuthenticated = true;
-            $this->authTimestamp = now()->timestamp; // Force reactivity trigger
+            $this->authTimestamp = now()->timestamp;
             
 
             $this->loadFavorites();
@@ -268,7 +274,6 @@ class ProductCatalog extends Component
             \Log::info('ProductCatalog: Employee data set successfully', [
                 'employee_id' => $this->getEmployeeId(),
                 'favorites_count' => count($this->favoriteIds),
-                'max_points' => $this->maxPoints,
                 'is_authenticated' => $this->isAuthenticated
             ]);
             
@@ -306,33 +311,36 @@ class ProductCatalog extends Component
     public function getProductsProperty()
     {
         $cacheService = app(CacheService::class);
-        
 
-        if ($this->category && !$this->search && $this->availableOnly && 
-            !$this->maxPoints && $this->sortBy === 'costo_puntos' && $this->sortDirection === 'asc') {
-            return $cacheService->getProductsByCategory($this->category);
+        if ($this->categoryId && !$this->search && $this->availableOnly && 
+            is_null($this->maxPoints) && $this->sortBy === 'puntos_requeridos' && $this->sortDirection === 'asc') {
+            return $cacheService->getProductsByCategory($this->categoryId);
         }
         
+        $sortColumn = $this->sortBy === 'puntos_requeridos' ? 'costo_puntos' : $this->sortBy;
 
         return Product::query()
+            ->with(['category'])
             ->when($this->search, function (Builder $query) {
                 $query->where(function (Builder $q) {
                     $q->where('nombre', 'like', '%' . $this->search . '%')
                       ->orWhere('descripcion', 'like', '%' . $this->search . '%')
-                      ->orWhere('categoria', 'like', '%' . $this->search . '%');
+                      ->orWhereHas('category', function (Builder $categoryQuery) {
+                          $categoryQuery->where('name', 'like', '%' . $this->search . '%');
+                      });
                 });
             })
-            ->when($this->category, function (Builder $query) {
-                $query->where('categoria', $this->category);
+            ->when($this->categoryId, function (Builder $query) {
+                $query->byCategoryId($this->categoryId);
             })
             ->when($this->availableOnly, function (Builder $query) {
                 $query->available();
             })
-            ->when($this->maxPoints, function (Builder $query) {
+            ->when(!is_null($this->maxPoints) && $this->maxPoints >= 0, function (Builder $query) {
                 $query->where('costo_puntos', '<=', $this->maxPoints);
             })
             ->where('activo', true)
-            ->orderBy($this->sortBy, $this->sortDirection)
+            ->orderBy($sortColumn, $this->sortDirection)
             ->paginate(12);
     }
 

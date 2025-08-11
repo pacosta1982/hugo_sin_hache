@@ -186,10 +186,10 @@
                         <dd class="text-sm text-gray-900">{{ $employee ? $employee->nombre : '' }}</dd>
                     </div>
                     
-                    @if($employee->email)
+                    @if($employee && $employee->email)
                         <div>
                             <dt class="text-sm font-medium text-gray-600">Email:</dt>
-                            <dd class="text-sm text-gray-900">{{ $employee ? $employee->email : '' }}</dd>
+                            <dd class="text-sm text-gray-900">{{ $employee->email }}</dd>
                         </div>
                     @endif
                     

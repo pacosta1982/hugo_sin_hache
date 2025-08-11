@@ -16,6 +16,80 @@ class AdminController extends Controller
         private PointsService $pointsService
     ) {}
 
+    public function dashboard(Request $request)
+    {
+
+        $stats = [
+            'orders' => [
+                'total' => Order::count(),
+                'today' => Order::whereDate('created_at', today())->count(),
+                'this_week' => Order::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+                'this_month' => Order::whereMonth('created_at', now()->month)->count(),
+                'pending' => Order::where('estado', Order::STATUS_PENDING)->count(),
+                'processing' => Order::where('estado', Order::STATUS_PROCESSING)->count(),
+                'completed' => Order::where('estado', Order::STATUS_COMPLETED)->count(),
+                'cancelled' => Order::where('estado', Order::STATUS_CANCELLED)->count(),
+            ],
+            'employees' => [
+                'total' => Employee::count(),
+                'active_this_month' => Employee::whereHas('orders', function ($q) {
+                    $q->whereMonth('created_at', now()->month);
+                })->count(),
+                'total_points_distributed' => Employee::sum('puntos_totales'),
+                'total_points_available' => Employee::sum('puntos_disponibles'),
+                'total_points_redeemed' => Employee::sum('puntos_canjeados'),
+                'admin_count' => Employee::where('rol_usuario', 'Administrador')->count(),
+            ],
+            'products' => [
+                'total' => Product::count(),
+                'active' => Product::where('activo', true)->count(),
+                'inactive' => Product::where('activo', false)->count(),
+                'out_of_stock' => Product::where('activo', true)->where('stock', 0)->count(),
+                'low_stock' => Product::where('activo', true)->where('stock', '>', 0)->where('stock', '<=', 5)->count(),
+                'average_cost' => (int) Product::where('activo', true)->avg('costo_puntos'),
+                'total_value' => Product::where('activo', true)->sum('costo_puntos'),
+            ],
+            'points' => [
+                'total_redeemed' => Order::whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING])->sum('puntos_utilizados'),
+                'today_redeemed' => Order::whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING])
+                    ->whereDate('created_at', today())
+                    ->sum('puntos_utilizados'),
+                'this_week_redeemed' => Order::whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING])
+                    ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+                    ->sum('puntos_utilizados'),
+                'this_month_redeemed' => Order::whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING])
+                    ->whereMonth('created_at', now()->month)
+                    ->sum('puntos_utilizados'),
+            ]
+        ];
+
+
+        $recentOrders = Order::with(['employee', 'product'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
+
+        $topEmployees = Employee::withCount(['orders as total_orders'])
+            ->withSum(['orders as points_redeemed' => function ($query) {
+                $query->whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING]);
+            }], 'puntos_utilizados')
+            ->orderBy('points_redeemed', 'desc')
+            ->limit(10)
+            ->get();
+
+
+        $popularProducts = Product::withCount(['orders as total_orders'])
+            ->withSum(['orders as points_earned' => function ($query) {
+                $query->whereIn('estado', [Order::STATUS_COMPLETED, Order::STATUS_PROCESSING]);
+            }], 'puntos_utilizados')
+            ->orderBy('total_orders', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('admin.dashboard', compact('stats', 'recentOrders', 'topEmployees', 'popularProducts'));
+    }
+
     public function orders(Request $request)
     {
         $query = Order::with(['employee', 'product']);
@@ -31,7 +105,7 @@ class AdminController extends Controller
             $query->whereDate('fecha', '<=', $request->date_to);
         }
 
-        // Search by employee name or product name
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -42,7 +116,7 @@ class AdminController extends Controller
 
         $orders = $query->orderBy('fecha', 'desc')->paginate(25);
 
-        // Calculate summary statistics
+
         $stats = [
             'total_orders' => Order::count(),
             'pending_orders' => Order::where('estado', Order::STATUS_PENDING)->count(),
@@ -86,7 +160,7 @@ class AdminController extends Controller
     {
         $query = Employee::query();
 
-        // Search by name or email
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -95,14 +169,14 @@ class AdminController extends Controller
             });
         }
 
-        // Filter by role
+
         if ($request->filled('role')) {
             $query->where('rol_usuario', $request->role);
         }
 
         $employees = $query->orderBy('nombre')->paginate(25);
 
-        // Calculate summary statistics
+
         $stats = [
             'total_employees' => Employee::count(),
             'total_points_distributed' => Employee::sum('puntos_totales'),
@@ -117,7 +191,7 @@ class AdminController extends Controller
     {
         $query = Product::query();
 
-        // Search by name or description
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -126,22 +200,22 @@ class AdminController extends Controller
             });
         }
 
-        // Filter by category
+
         if ($request->filled('category')) {
             $query->where('categoria', $request->category);
         }
 
-        // Filter by active status
+
         if ($request->filled('active')) {
             $query->where('activo', $request->active === '1');
         }
 
         $products = $query->orderBy('nombre')->paginate(25);
 
-        // Get categories for filter
+
         $categories = Product::whereNotNull('categoria')->distinct()->pluck('categoria')->sort();
 
-        // Calculate summary statistics
+
         $stats = [
             'total_products' => Product::count(),
             'active_products' => Product::where('activo', true)->count(),
@@ -154,17 +228,22 @@ class AdminController extends Controller
 
     public function reports(Request $request)
     {
-        // This would contain various reports and analytics
-        // For now, just return a basic view
+
+
         return view('admin.reports');
     }
 
-    // API Methods
+    public function points(Request $request)
+    {
+        return view('admin.points');
+    }
+
+
     public function apiOrders(AdminOrdersFilterRequest $request)
     {
         $query = Order::with(['employee', 'product']);
 
-        // Apply filters (reuse the same logic as orders method)
+
         if ($request->filled('status')) {
             $query->where('estado', $request->status);
         }
@@ -261,7 +340,7 @@ class AdminController extends Controller
 
     public function apiReports(Request $request)
     {
-        // Generate basic analytics data
+
         $stats = [
             'orders' => [
                 'total' => Order::count(),

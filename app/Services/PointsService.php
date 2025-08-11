@@ -174,7 +174,7 @@ class PointsService
         return Product::active()
             ->available()
             ->where('costo_puntos', '<=', $employee->puntos_totales)
-            ->orderBy('costo_puntos', 'desc') // Show higher value items first
+            ->orderBy('costo_puntos', 'desc')
             ->limit($limit)
             ->get();
     }

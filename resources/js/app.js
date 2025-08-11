@@ -4,7 +4,6 @@ import './bootstrap';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-console.log('🔥 Loading Firebase app.js...');
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,14 +14,11 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-console.log('🔧 Firebase Config:', firebaseConfig);
 
 
-console.log('🚀 Initializing Firebase app...');
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-console.log('✅ Firebase app initialized');
 
 
 window.auth = auth;
@@ -32,19 +28,15 @@ window.authInitialized = false;
 
 window.signInWithGoogle = async function() {
     try {
-        console.log('🚀 Starting Google sign-in...');
         const result = await signInWithPopup(auth, googleProvider);
-        console.log('✅ Google sign-in successful!', result.user);
         
 
         const token = await result.user.getIdToken();
         localStorage.setItem('firebase_token', token);
-        console.log('🎫 Token stored, redirecting to dashboard...');
         window.location.href = '/dashboard';
         
         return result;
     } catch (error) {
-        console.error('❌ Google sign-in failed:', error);
         
         let errorMessage = 'Error al iniciar sesión con Google';
         
@@ -73,42 +65,35 @@ window.signInWithGoogle = async function() {
 
 
 onAuthStateChanged(auth, (user) => {
-    console.log('🔐 Auth state changed:', user ? `User: ${user.email}` : 'No user');
     
 
     window.authInitialized = true;
     
     if (user) {
 
-        console.log('✅ User authenticated, getting token...');
         user.getIdToken().then((token) => {
 
             localStorage.setItem('firebase_token', token);
-            console.log('🎫 Token stored successfully');
             
 
             setInterval(() => {
                 user.getIdToken(true).then((refreshedToken) => {
                     localStorage.setItem('firebase_token', refreshedToken);
-                    console.log('🔄 Token refreshed');
                 });
-            }, 50 * 60 * 1000); // Refresh every 50 minutes
+            }, 50 * 60 * 1000);
             
 
             window.dispatchEvent(new CustomEvent('auth-completed', {
                 detail: { user, token }
             }));
-            console.log('🎉 Auth completed event dispatched');
         });
     } else {
 
-        console.log('❌ No user found, clearing token');
         localStorage.removeItem('firebase_token');
         
 
 
         if (!window.location.pathname.includes('/login')) {
-            console.log('🔀 Redirecting to login...');
             window.location.href = '/login';
         }
     }
@@ -164,7 +149,6 @@ window.apiRequest = async function(url, options = {}) {
         
         return await response.json();
     } catch (error) {
-        console.error('API request failed:', error);
         throw error;
     }
 };
@@ -239,7 +223,6 @@ window.confirmAction = function(message, callback) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM loaded, setting up page functionality...');
     
 
     setupLoginForm();
@@ -286,12 +269,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function handleFavoritesPageAuth() {
-    console.log('🔄 Setting up favorites page auth handler...');
     
 
     const hasEmployee = document.querySelector('[data-has-employee]');
     if (hasEmployee && hasEmployee.dataset.hasEmployee === 'true') {
-        console.log('✅ Favorites page loaded with employee data');
         return;
     }
     
@@ -304,7 +285,6 @@ function handleFavoritesPageAuth() {
         const authInitialized = window.authInitialized;
         
         if (token && authInitialized && !hasTriedReload) {
-            console.log('🎯 Favorites page: Auth detected, reloading with token...');
             hasTriedReload = true;
             clearInterval(authCheckInterval);
             
@@ -317,7 +297,6 @@ function handleFavoritesPageAuth() {
     setTimeout(function() {
         if (authCheckInterval) {
             clearInterval(authCheckInterval);
-            console.log('⏰ Favorites page: Auth check timeout');
         }
     }, 10000);
 }
@@ -332,7 +311,6 @@ function setupAuthenticatedNavigation() {
             const token = localStorage.getItem('firebase_token');
             
             if (token) {
-                console.log('🔗 Intercepting favorites navigation with authentication');
                 e.preventDefault();
                 
 
@@ -353,7 +331,6 @@ function setupAuthenticatedNavigation() {
 
                     history.pushState(null, '', '/favoritos');
                 }).catch(error => {
-                    console.error('❌ Failed to load authenticated favorites page:', error);
 
                     window.location.href = '/favoritos';
                 });
@@ -364,27 +341,22 @@ function setupAuthenticatedNavigation() {
 
 
 function setupLoginForm() {
-    console.log('🎯 Checking for login form...');
     
     const loginForm = document.getElementById('manual-login');
     if (!loginForm) {
-        console.log('🚫 No login form found on this page');
         return;
     }
     
-    console.log('✅ Login form found, setting up handler...');
     
     const loading = document.getElementById('auth-loading');
     const errorContainer = document.getElementById('error-message');
     
     loginForm.addEventListener('submit', async (e) => {
-        console.log('🚀 Login form submitted!');
         e.preventDefault();
         
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         
-        console.log('📧 Attempting login with:', email);
         
 
         hideLoginError();
@@ -396,20 +368,14 @@ function setupLoginForm() {
         }
         
         try {
-            console.log('🔐 Calling Firebase signInWithEmailAndPassword...');
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            console.log('✅ Firebase authentication successful!', userCredential.user);
             
 
             const token = await userCredential.user.getIdToken();
             localStorage.setItem('firebase_token', token);
-            console.log('🎫 Token stored, redirecting to dashboard...');
             window.location.href = '/dashboard';
             
         } catch (error) {
-            console.error('❌ Login failed:', error);
-            console.error('Error code:', error.code);
-            console.error('Error message:', error.message);
             
 
             if (loading && loginForm) {
@@ -419,7 +385,6 @@ function setupLoginForm() {
             
 
             let errorMessage = getLoginErrorMessage(error.code);
-            console.log('📢 Showing error:', errorMessage);
             showLoginError(errorMessage);
         }
     });
@@ -447,7 +412,6 @@ function getLoginErrorMessage(errorCode) {
 }
 
 function showLoginError(message) {
-    console.log('📢 Showing error message:', message);
     const errorContainer = document.getElementById('error-message');
     const errorText = document.getElementById('error-text');
     if (errorContainer && errorText) {

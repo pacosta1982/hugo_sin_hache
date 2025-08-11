@@ -1,0 +1,1098 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ITTI Digital Design System */
+
+/* Base Components */
+@layer components {
+    /* Navigation */
+    .nav-link {
+        @apply inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600 hover:text-itti-primary hover:bg-itti-primary/5 focus:outline-none focus:text-itti-primary focus:bg-itti-primary/5 transition-all duration-200 rounded-lg border-0;
+    }
+    
+    .nav-link.active {
+        @apply text-itti-primary bg-itti-primary/10 font-semibold;
+    }
+
+    /* Dropdown */
+    .dropdown-item {
+        @apply block px-4 py-2 text-sm text-gray-700 hover:bg-itti-primary/5 hover:text-itti-primary transition-all duration-200 rounded-lg mx-2;
+    }
+
+    /* Modern Button System */
+    .btn {
+        @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-sm {
+        @apply px-4 py-2 text-xs;
+    }
+
+    .btn-lg {
+        @apply px-8 py-4 text-base;
+    }
+
+    .btn-primary {
+        @apply btn bg-gradient-to-r from-itti-primary to-itti-secondary text-white hover:from-itti-secondary hover:to-itti-primary focus:ring-itti-primary transform hover:scale-105 shadow-lg hover:shadow-xl;
+    }
+
+    .btn-secondary {
+        @apply btn bg-white border-2 border-itti-primary text-itti-primary hover:bg-itti-primary hover:text-white focus:ring-itti-primary shadow-md hover:shadow-lg;
+    }
+
+    .btn-ghost {
+        @apply btn bg-transparent hover:bg-itti-primary/10 text-itti-primary border-0 shadow-none;
+    }
+
+    .btn-dark {
+        @apply btn bg-itti-dark-purple text-white hover:bg-opacity-90 focus:ring-itti-primary shadow-lg hover:shadow-xl;
+    }
+
+    /* Modern Card System */
+    .card {
+        @apply bg-white rounded-xl shadow-soft border border-gray-100 hover:shadow-lg hover:border-itti-primary/20 transition-all duration-300;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .card-header {
+        @apply p-6 pb-0;
+    }
+
+    .card-footer {
+        @apply p-6 pt-0;
+    }
+
+    .card-gradient {
+        @apply bg-gradient-to-br from-white via-itti-accent/5 to-itti-primary/5 rounded-xl shadow-soft border border-itti-primary/20 backdrop-blur-sm;
+    }
+
+    .card-dark {
+        @apply bg-gradient-to-br from-itti-dark-purple to-itti-dark-purple/90 text-white rounded-xl shadow-strong border border-itti-primary/30;
+    }
+
+    .card-stats {
+        @apply card-gradient hover:scale-105 transition-all duration-300 cursor-pointer;
+    }
+
+    .card-product {
+        @apply card hover:shadow-xl hover:scale-105 transition-all duration-300 overflow-hidden;
+    }
+
+    .interactive-scale {
+        @apply transform hover:scale-105 transition-transform duration-200;
+    }
+
+    /* Modern Form System */
+    .form-group {
+        @apply mb-6;
+    }
+
+    .form-group-inline {
+        @apply flex items-center space-x-4;
+    }
+
+    .form-label {
+        @apply block text-sm font-semibold text-gray-700 mb-2;
+    }
+
+    .form-input {
+        @apply block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-itti-primary/20 focus:border-itti-primary transition-all duration-200 bg-white;
+    }
+
+    .form-textarea {
+        @apply form-input resize-none;
+    }
+
+    .form-select {
+        @apply form-input appearance-none bg-no-repeat bg-right;
+    }
+
+    .form-checkbox {
+        @apply h-5 w-5 text-itti-primary focus:ring-itti-primary/20 border-gray-300 rounded transition-colors;
+    }
+
+    .form-radio {
+        @apply h-5 w-5 text-itti-primary focus:ring-itti-primary/20 border-gray-300 transition-colors;
+    }
+
+    .form-error {
+        @apply text-red-500 text-sm mt-1;
+    }
+
+    /* Status Badge System */
+    .status-badge {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide;
+    }
+    
+    .status-pending {
+        @apply status-badge bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 border border-yellow-300;
+    }
+    
+    .status-processing {
+        @apply status-badge bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border border-blue-300;
+    }
+    
+    .status-completed {
+        @apply status-badge bg-gradient-to-r from-green-100 to-green-200 text-green-800 border border-green-300;
+    }
+    
+    .status-cancelled {
+        @apply status-badge bg-gradient-to-r from-red-100 to-red-200 text-red-800 border border-red-300;
+    }
+
+    /* Product & Layout Components */
+    .product-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+    }
+
+    .product-card {
+        @apply card-product relative;
+    }
+
+    .product-card-image {
+        @apply h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center rounded-t-xl;
+    }
+
+    .product-card-content {
+        @apply p-6;
+    }
+
+    .product-card-title {
+        @apply font-semibold text-gray-900 text-lg mb-2 line-clamp-2;
+    }
+
+    .product-card-description {
+        @apply text-gray-600 text-sm mb-3 line-clamp-3;
+    }
+
+    .product-card-price {
+        @apply text-xl font-bold text-itti-primary;
+    }
+
+    /* Layout Utilities */
+    .container {
+        @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        @apply bg-gradient-to-br from-itti-dark-purple via-itti-dark-purple/95 to-itti-dark text-white py-20 lg:py-32 relative overflow-hidden;
+    }
+
+    .hero-content {
+        @apply container relative z-10;
+    }
+
+    .hero-title {
+        @apply text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight;
+    }
+
+    .hero-subtitle {
+        @apply text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl;
+    }
+
+    /* Loading States */
+    .loading-spinner {
+        @apply w-8 h-8 border-4 border-itti-primary/20 border-t-itti-primary rounded-full animate-spin;
+    }
+
+    .skeleton {
+        @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse rounded;
+    }
+
+    .skeleton-text {
+        @apply skeleton h-4 mb-2;
+    }
+
+    .skeleton-title {
+        @apply skeleton h-6 mb-4;
+    }
+
+    /* Mobile Navigation */
+    .mobile-nav-link {
+        @apply block px-4 py-3 text-base font-medium text-gray-700 hover:text-itti-primary hover:bg-itti-primary/5 transition-all duration-200 rounded-lg;
+    }
+
+    .mobile-nav-link.active {
+        @apply text-itti-primary bg-itti-primary/10;
+    }
+
+    /* Animations */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .slide-up {
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Text Utilities */
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Modern Gradient System */
+.gradient-primary {
+    background: linear-gradient(135deg, #0ADD90 0%, #00AE6E 100%);
+}
+
+.gradient-itti {
+    background: linear-gradient(135deg, #0ADD90 0%, #00AE6E 50%, #0f766e 100%);
+}
+
+.gradient-dark {
+    background: linear-gradient(135deg, #1F1B24 0%, #0D0D0D 100%);
+}
+
+.gradient-blue {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-accent {
+    background: linear-gradient(135deg, #0ADD90 0%, #2dd4bf 50%, #14b8a6 100%);
+}
+
+/* Focus and Shadow Utilities */
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-itti-primary/30 focus:ring-offset-2;
+}
+
+.shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(10, 221, 144, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-strong {
+    box-shadow: 0 10px 25px -3px rgba(10, 221, 144, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Background Utilities */
+.bg-gradient-blue {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-green {
+    background: linear-gradient(135deg, #0ADD90 0%, #00AE6E 100%);
+}
+
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Compatibility Classes */
+.card-itti {
+    @apply card-gradient;
+}
+
+.card-itti-dark {
+    @apply card-dark;
+}
+
+/* Admin Dashboard Styles */
+.stats-card {
+    @apply p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105;
+}
+
+.quick-action-btn {
+    @apply flex flex-col items-center justify-center p-6 bg-gray-50 hover:bg-itti-primary hover:text-white rounded-2xl transition-all duration-300 text-gray-700 font-medium text-sm text-center;
+}
+
+.quick-action-btn:hover {
+    @apply shadow-lg transform scale-105;
+}
+
+.quick-action-btn svg {
+    @apply transition-transform duration-300;
+}
+
+.quick-action-btn:hover svg {
+    @apply scale-110;
+}
+
+/* Admin navigation highlight */
+.admin-nav-active {
+    @apply bg-purple-50 text-purple-700 border-purple-200;
+}
+
+/* Mobile Responsive Utilities */
+@media (max-width: 640px) {
+    /* Mobile-first card adaptations */
+    .card {
+        @apply mx-2 rounded-2xl;
+    }
+    
+    .card-header {
+        @apply px-4 py-4;
+    }
+    
+    .card-body {
+        @apply px-4 py-4;
+    }
+    
+    /* Mobile navigation improvements */
+    .container {
+        @apply px-4;
+    }
+    
+    /* Mobile-friendly form elements */
+    .form-input {
+        @apply text-base px-4 py-3;
+    }
+    
+    .form-label {
+        @apply text-sm font-medium;
+    }
+    
+    /* Button adaptations */
+    .btn-primary, .btn-secondary, .btn-danger {
+        @apply py-3 px-4 text-base;
+    }
+    
+    .btn-sm {
+        @apply py-2 px-3 text-sm;
+    }
+    
+    .btn-lg {
+        @apply py-4 px-6 text-lg;
+    }
+    
+    /* Stats card mobile layout */
+    .stats-card {
+        @apply p-4;
+    }
+    
+    /* Mobile table improvements */
+    .table-container {
+        @apply overflow-x-auto -mx-4;
+    }
+    
+    .table-container table {
+        @apply min-w-full;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Tablet responsive adjustments */
+    .grid-responsive {
+        @apply grid-cols-1 gap-4;
+    }
+    
+    .grid-responsive-2 {
+        @apply grid-cols-1 sm:grid-cols-2 gap-4;
+    }
+    
+    /* Modal improvements for tablet */
+    .modal-responsive {
+        @apply m-4 max-h-[85vh];
+    }
+    
+    /* Dashboard grid adjustments */
+    .dashboard-grid {
+        @apply grid-cols-1 md:grid-cols-2 gap-6;
+    }
+    
+    /* Product grid responsive */
+    .product-grid {
+        @apply grid-cols-1 sm:grid-cols-2 gap-4;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets on touch devices */
+    .btn, button, a[class*="btn"], [role="button"] {
+        @apply min-h-[44px] min-w-[44px];
+    }
+    
+    /* Remove hover states on touch devices */
+    .hover-lift:hover {
+        transform: none;
+    }
+    
+    /* Adjust card interactions for touch */
+    .card-interactive {
+        @apply transition-none;
+    }
+    
+    /* Simplify animations for touch devices */
+    .animate-on-hover {
+        @apply transition-none;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1280px) {
+    .container {
+        @apply max-w-7xl;
+    }
+    
+    /* Improve large screen layouts */
+    .xl-grid-3 {
+        @apply xl:grid-cols-3;
+    }
+    
+    .xl-grid-4 {
+        @apply xl:grid-cols-4;
+    }
+    
+    /* Enhanced spacing for large screens */
+    .xl-space-y-12 {
+        @apply xl:space-y-12;
+    }
+    
+    .xl-p-12 {
+        @apply xl:p-12;
+    }
+}
+
+/* Improved Focus Management */
+.focus-visible-only {
+    @apply focus:outline-none;
+}
+
+.focus-visible-only:focus-visible {
+    @apply ring-2 ring-itti-primary/50 ring-offset-2 outline-none;
+}
+
+/* Mobile Navigation Enhancements */
+.mobile-nav-item {
+    @apply flex items-center px-4 py-3 text-base font-medium rounded-xl mx-2 transition-all duration-200;
+}
+
+.mobile-nav-item:hover {
+    @apply bg-itti-primary/5 text-itti-primary;
+}
+
+.mobile-nav-item.active {
+    @apply bg-itti-primary text-white shadow-lg;
+}
+
+/* Mobile Modal Improvements */
+.mobile-modal {
+    @apply fixed inset-0 z-50 overflow-y-auto;
+}
+
+.mobile-modal-content {
+    @apply min-h-screen bg-white;
+}
+
+@media (max-width: 640px) {
+    .mobile-modal-content {
+        @apply rounded-t-3xl mt-20;
+        min-height: calc(100vh - 5rem);
+    }
+}
+
+/* Responsive Typography */
+.text-responsive-xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl;
+}
+
+.text-responsive-lg {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+}
+
+.text-responsive-base {
+    @apply text-base sm:text-lg;
+}
+
+/* Mobile-Optimized Components */
+.mobile-card-stack {
+    @apply space-y-4;
+}
+
+@media (min-width: 768px) {
+    .mobile-card-stack {
+        @apply space-y-0 grid grid-cols-2 gap-6;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-card-stack {
+        @apply grid-cols-3 gap-8;
+    }
+}
+
+/* Safe Area Support for Mobile Devices */
+.safe-area-top {
+    padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-area-left {
+    padding-left: env(safe-area-inset-left, 0);
+}
+
+.safe-area-right {
+    padding-right: env(safe-area-inset-right, 0);
+}
+
+/* Mobile Drawer/Sidebar Improvements */
+.mobile-drawer {
+    @apply fixed inset-y-0 left-0 z-40 w-80 bg-white shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out;
+}
+
+.mobile-drawer.open {
+    @apply translate-x-0;
+}
+
+.mobile-drawer-overlay {
+    @apply fixed inset-0 z-30 bg-black bg-opacity-50 transition-opacity duration-300;
+}
+
+/* Optimized Loading States for Mobile */
+.mobile-loading {
+    @apply flex flex-col items-center justify-center py-12;
+}
+
+.mobile-loading-spinner {
+    @apply w-8 h-8 border-2 border-itti-primary border-t-transparent rounded-full animate-spin mb-4;
+}
+
+/* Mobile-Friendly Form Improvements */
+.mobile-form-group {
+    @apply mb-6;
+}
+
+.mobile-form-input {
+    @apply w-full px-4 py-4 text-base border-2 border-gray-200 rounded-2xl focus:border-itti-primary focus:ring-4 focus:ring-itti-primary/20 transition-all duration-300;
+}
+
+.mobile-form-label {
+    @apply block text-sm font-semibold text-gray-700 mb-3;
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    .animate-bounce,
+    .animate-spin,
+    .animate-pulse,
+    .animate-ping {
+        animation: none;
+    }
+    
+    .transition-all,
+    .transition-transform,
+    .transition-opacity,
+    .transition-colors {
+        transition: none;
+    }
+}
+
+/* Enhanced Loading States & Animations */
+
+/* Skeleton Loading */
+.skeleton {
+    @apply animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] rounded-lg;
+    animation: skeleton-wave 2s ease-in-out infinite;
+}
+
+@keyframes skeleton-wave {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-text {
+    @apply skeleton h-4 w-full;
+}
+
+.skeleton-text-sm {
+    @apply skeleton h-3 w-3/4;
+}
+
+.skeleton-text-lg {
+    @apply skeleton h-6 w-full;
+}
+
+.skeleton-avatar {
+    @apply skeleton w-10 h-10 rounded-full;
+}
+
+.skeleton-card {
+    @apply skeleton h-32 w-full rounded-xl;
+}
+
+/* Enhanced Loading Spinners */
+.spinner-dots {
+    @apply flex space-x-1;
+}
+
+.spinner-dots > div {
+    @apply w-2 h-2 bg-itti-primary rounded-full animate-bounce;
+}
+
+.spinner-dots > div:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.spinner-dots > div:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.spinner-pulse {
+    @apply w-8 h-8 bg-itti-primary rounded-full animate-ping;
+}
+
+.spinner-ring {
+    @apply w-8 h-8 border-4 border-gray-200 border-t-itti-primary rounded-full animate-spin;
+}
+
+.spinner-ring-lg {
+    @apply w-12 h-12 border-4 border-gray-200 border-t-itti-primary rounded-full animate-spin;
+}
+
+/* Fade Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.6s ease-out forwards;
+}
+
+.fade-in-left {
+    animation: fadeInLeft 0.6s ease-out forwards;
+}
+
+.fade-in-right {
+    animation: fadeInRight 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Scale Animations */
+.scale-in {
+    animation: scaleIn 0.4s ease-out forwards;
+}
+
+.scale-in-center {
+    animation: scaleInCenter 0.5s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scaleInCenter {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Slide Animations */
+.slide-in-bottom {
+    animation: slideInBottom 0.6s ease-out forwards;
+}
+
+.slide-in-top {
+    animation: slideInTop 0.6s ease-out forwards;
+}
+
+@keyframes slideInBottom {
+    from {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger Animation for Lists */
+.stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: staggerIn 0.6s ease-out forwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.stagger-item:nth-child(5) { animation-delay: 0.5s; }
+.stagger-item:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes staggerIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Micro-interactions */
+.hover-float:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-out;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(10, 221, 144, 0.3);
+    transition: box-shadow 0.3s ease-out;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease-out;
+}
+
+.hover-rotate:hover {
+    transform: rotate(5deg);
+    transition: transform 0.2s ease-out;
+}
+
+/* Button Press Animation */
+.btn-press:active {
+    transform: translateY(1px) scale(0.98);
+    transition: transform 0.1s ease-out;
+}
+
+/* Ripple Effect */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Progress Animations */
+.progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+}
+
+.progress-fill {
+    @apply h-full bg-gradient-to-r from-itti-primary to-itti-secondary rounded-full transition-all duration-500 ease-out;
+    background-size: 20px 20px;
+    animation: progress-move 2s linear infinite;
+}
+
+@keyframes progress-move {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 20px 0;
+    }
+}
+
+/* Notification Animations */
+.notification-enter {
+    animation: notificationEnter 0.5s ease-out forwards;
+}
+
+.notification-leave {
+    animation: notificationLeave 0.3s ease-out forwards;
+}
+
+@keyframes notificationEnter {
+    from {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes notificationLeave {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+    }
+}
+
+/* Card Entrance Animations */
+.card-entrance {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: cardEntrance 0.6s ease-out forwards;
+}
+
+@keyframes cardEntrance {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced Hover States for Interactive Elements */
+.interactive-card {
+    @apply transition-all duration-300 ease-out;
+}
+
+.interactive-card:hover {
+    @apply shadow-xl -translate-y-1;
+    transform: translateY(-4px) scale(1.02);
+}
+
+/* Loading State Overlays */
+.loading-overlay {
+    @apply absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 backdrop-blur-sm;
+}
+
+.loading-overlay-dark {
+    @apply absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-10 backdrop-blur-sm;
+}
+
+/* Shimmer Effect */
+.shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Enhanced Focus States */
+.focus-ring-enhanced:focus {
+    @apply outline-none ring-4 ring-itti-primary ring-opacity-30;
+    box-shadow: 0 0 0 4px rgba(10, 221, 144, 0.3);
+}
+
+/* Success/Error State Animations */
+.success-pulse {
+    animation: successPulse 0.6s ease-out;
+}
+
+.error-shake {
+    animation: errorShake 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+}
+
+@keyframes errorShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* Loading Dots Animation */
+.loading-dots {
+    @apply flex space-x-1;
+}
+
+.loading-dots span {
+    @apply w-2 h-2 bg-itti-primary rounded-full animate-pulse;
+}
+
+.loading-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Typewriter Effect */
+.typewriter {
+    overflow: hidden;
+    border-right: 2px solid rgba(10, 221, 144, 0.75);
+    white-space: nowrap;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+@keyframes blink-caret {
+    from, to {
+        border-color: transparent;
+    }
+    50% {
+        border-color: rgba(10, 221, 144, 0.75);
+    }
+}

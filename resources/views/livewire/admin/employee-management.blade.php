@@ -147,10 +147,30 @@
                                 {{ $employee->created_at->format('d/m/Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button wire:click="openDetailsModal('{{ $employee->id_empleado }}')" 
-                                        class="text-blue-600 hover:text-blue-900">
-                                    Ver Detalles
-                                </button>
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button wire:click="openDetailsModal('{{ $employee->id_empleado }}')" 
+                                            class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded bg-blue-50 hover:bg-blue-100">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                        Ver
+                                    </button>
+                                    <button wire:click="openEditModal('{{ $employee->id_empleado }}')" 
+                                            class="text-teal-600 hover:text-teal-900 px-3 py-1 rounded bg-teal-50 hover:bg-teal-100">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                        Editar
+                                    </button>
+                                    <button wire:click="openPointsModal('{{ $employee->id_empleado }}')" 
+                                            class="text-green-600 hover:text-green-900 px-3 py-1 rounded bg-green-50 hover:bg-green-100">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                        Puntos
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -316,8 +336,179 @@
                             </div>
                         </div>
                     @endif
+
+                    
+                    @if(count($employeeTransactions) > 0)
+                        <div class="card mt-6">
+                            <div class="card-header">
+                                <h4 class="text-lg font-medium">Historial de Puntos</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Puntos</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Admin</th>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @foreach($employeeTransactions as $transaction)
+                                                <tr>
+                                                    <td class="px-4 py-2">
+                                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                                            @if($transaction['type'] === 'earned') bg-green-100 text-green-800 
+                                                            @elseif($transaction['type'] === 'spent') bg-red-100 text-red-800
+                                                            @else bg-yellow-100 text-yellow-800 @endif">
+                                                            {{ ucfirst($transaction['type']) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm font-medium text-gray-900">
+                                                        @if($transaction['type'] === 'spent')-@endif{{ number_format($transaction['points']) }}
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-500">{{ $transaction['description'] }}</td>
+                                                    <td class="px-4 py-2 text-sm text-gray-500">
+                                                        {{ $transaction['admin']['nombre'] ?? 'Sistema' }}
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-500">
+                                                        {{ \Carbon\Carbon::parse($transaction['created_at'])->format('d/m/Y H:i') }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
+        </div>
+    @endif
+
+    
+    @if($showEditModal && $selectedEmployee)
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            Editar Empleado: {{ $selectedEmployee->nombre }}
+                        </h3>
+                        <button wire:click="closeEditModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <form wire:submit.prevent="updateEmployee">
+                    <div class="px-6 py-4 space-y-4">
+                        <div>
+                            <label class="form-label">Nombre</label>
+                            <input type="text" wire:model="editForm.nombre" class="form-input w-full">
+                            @error('editForm.nombre') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="form-label">Email</label>
+                            <input type="email" wire:model="editForm.email" class="form-input w-full">
+                            @error('editForm.email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="form-label">Puntos Totales</label>
+                            <input type="number" wire:model="editForm.puntos_totales" class="form-input w-full" min="0">
+                            @error('editForm.puntos_totales') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="form-label">Rol</label>
+                            <select wire:model="editForm.rol_usuario" class="form-input w-full">
+                                <option value="Empleado">Empleado</option>
+                                <option value="Administrador">Administrador</option>
+                            </select>
+                            @error('editForm.rol_usuario') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                        <button type="button" wire:click="closeEditModal" class="btn-secondary">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    
+    @if($showPointsModal)
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full m-4">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            Ajustar Puntos
+                        </h3>
+                        <button wire:click="closePointsModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <form wire:submit.prevent="adjustPoints">
+                    <div class="px-6 py-4 space-y-4">
+                        <div>
+                            <label class="form-label">Tipo de Ajuste</label>
+                            <select wire:model="pointsForm.type" class="form-input w-full">
+                                <option value="earned">Otorgar Puntos</option>
+                                <option value="adjustment">Ajuste Manual</option>
+                            </select>
+                            @error('pointsForm.type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="form-label">Cantidad de Puntos</label>
+                            <input type="number" wire:model="pointsForm.points" class="form-input w-full" min="1" max="10000">
+                            @error('pointsForm.points') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div>
+                            <label class="form-label">Descripción</label>
+                            <textarea wire:model="pointsForm.description" class="form-input w-full" rows="3" 
+                                      placeholder="Ej: Bonificación por desempeño excepcional"></textarea>
+                            @error('pointsForm.description') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                        <button type="button" wire:click="closePointsModal" class="btn-secondary">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                            Ajustar Puntos
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    
+    @if (session()->has('message'))
+        <div class="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50" 
+             x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 3000)">
+            {{ session('message') }}
         </div>
     @endif
 </div>
